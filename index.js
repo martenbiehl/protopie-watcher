@@ -20,23 +20,21 @@ const { default: pkg } = await import("./package.json", {
 
 process.removeAllListeners("warning");
 
+const defaultConfigName = "./protopie-watcher.json";
+
 const program = new Command();
 
 program.name("protopie-watcher");
 program.version(pkg.version);
 program.description(pkg.description);
 
-program.option(
-  "-c, --config <file>",
-  "config file to use",
-  "protopie-watcher.json"
-);
+program.option("-c, --config <file>", "config file to use", defaultConfigName);
 program.option(
   "-d, --debounce <debounce>",
   "(in ms) how long do we wait until a change gets uploaded again?",
   2000
 );
-program.option("-u, --upload-on-start", "upload all pies when starting", true);
+program.option("-u, --upload-on-start", "upload all pies when starting");
 
 program.parse();
 
@@ -69,10 +67,9 @@ try {
       const pieFiles = files.filter((el) => path.extname(el) === ".pie");
       example.pies = pieFiles.map((filepath) => ({ filepath, pieId: "" }));
     }
-    await writeFile(
-      "./protopie-watcher.json",
-      JSON.stringify(example, null, 4)
-    );
+    await writeFile(defaultConfigName, JSON.stringify(example, null, 4));
+
+    console.log(`Created new file ${chalk.green(defaultConfigName)}`);
   }
   process.exit();
 }
