@@ -1,0 +1,12 @@
+{
+  "hostname": "localhost",
+  "port": 9981,
+  "basepath": "pies",
+  "pies": [
+    {
+      "filepath":
+        "Example.pie",
+      "pieId": "1"
+    }
+  ]
+}
