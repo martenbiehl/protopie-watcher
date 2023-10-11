@@ -1,6 +1,6 @@
 {
   "name": "@martenbiehl/protopie-watcher",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Watch ProtoPie Files for changes and upload to ProtoPie Connect",
   "main": "index.js",
   "type": "module",
