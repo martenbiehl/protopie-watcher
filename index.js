@@ -60,7 +60,9 @@ try {
     },
   ]);
   if (shouldCreateExample) {
-    const example = JSON.parse(await readFile("./example.json", "utf8"));
+    const { default: example } = await import("./package.json", {
+      assert: { type: "json" },
+    });
 
     if (shouldScan) {
       const files = await readdir(process.cwd());
