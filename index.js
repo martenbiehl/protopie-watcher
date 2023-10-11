@@ -60,7 +60,7 @@ try {
     },
   ]);
   if (shouldCreateExample) {
-    const { default: example } = await import("./package.json", {
+    const { default: example } = await import("./example.json", {
       assert: { type: "json" },
     });
 
@@ -110,7 +110,9 @@ async function uploadPie({ filepath, pieId }) {
     const body = new FormData();
     const blob = new Blob([await readFile(filepath)]);
 
-    body.set("pieId", parseInt(pieId));
+    if (!isNaN(parseInt(pieId))) {
+      body.set("pieId", parseInt(pieId));
+    }
     body.set("file", blob, filename);
     body.set("filepath", filename);
 
@@ -121,6 +123,7 @@ async function uploadPie({ filepath, pieId }) {
     url.pathname = config.basepath;
 
     console.log(chalk.dim("POSTing to " + url.toString()));
+    console.log(body);
 
     const resp = await fetch(url, {
       method: "POST",
@@ -141,17 +144,18 @@ async function uploadPie({ filepath, pieId }) {
         chalk.bgYellow(`  Detected new pieId ${responseId} (old: ${pieId})  `)
       );
       console.log(`Updating config and saving...`);
-      config.pies = pies.map((p) => {
+      config.pies = config.pies.map((p) => {
         if (p.filepath == filepath) {
           p.pieId = responseId;
         }
         return p;
       });
-      await writeFile(program.opts().config, config);
+      await writeFile(program.opts().config, JSON.stringify(config));
       console.log(`Saved`);
     }
   } catch (err) {
     console.error(chalk.red(err.message));
+    console.error(err);
     return;
   }
 }
@@ -167,16 +171,26 @@ async function detectedChange(filepath) {
         "  "
     )
   );
-  const pie = pies.find((current) => current.filepath == filepath);
-  const filename = path.basename(pie.filepath);
-  console.log(
-    chalk.dim("Detected changes in ") +
-      filename +
-      chalk.dim(" with id ") +
-      pie.pieId
-  );
+  const pie = config.pies.find((current) => current.filepath == filepath);
 
-  uploadPie(pie);
+  if (pie) {
+    const filename = path.basename(pie.filepath);
+    console.log(
+      chalk.dim("Detected changes in ") +
+        filename +
+        chalk.dim(" with id ") +
+        pie.pieId
+    );
+
+    uploadPie(pie);
+  } else {
+    // new pie
+    console.log(chalk.dim.green("Detected changes new pie in ") + filepath);
+    console.log(config.pies);
+    console.log(filepath);
+
+    uploadPie({ filepath });
+  }
 
   console.log("\n");
 }
