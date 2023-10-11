@@ -123,7 +123,6 @@ async function uploadPie({ filepath, pieId }) {
     url.pathname = config.basepath;
 
     console.log(chalk.dim("POSTing to " + url.toString()));
-    console.log(body);
 
     const resp = await fetch(url, {
       method: "POST",
@@ -136,7 +135,6 @@ async function uploadPie({ filepath, pieId }) {
       process.stdout.write("\u0007\u0007\u0007");
     }
     const response = await resp.json();
-    console.log(chalk.green(response.message));
 
     const responseId = response.data.pieId;
     if (responseId !== pieId) {
@@ -154,13 +152,14 @@ async function uploadPie({ filepath, pieId }) {
       console.log(`Saved`);
     }
   } catch (err) {
-    console.error(chalk.red(err.message));
     console.error(err);
     return;
   }
 }
 
 async function detectedChange(filepath) {
+  filepath = path.basename(filepath);
+  console.log("\n");
   console.log(
     chalk.bgWhite(
       "  " +
@@ -174,10 +173,9 @@ async function detectedChange(filepath) {
   const pie = config.pies.find((current) => current.filepath == filepath);
 
   if (pie) {
-    const filename = path.basename(pie.filepath);
     console.log(
       chalk.dim("Detected changes in ") +
-        filename +
+        filepath +
         chalk.dim(" with id ") +
         pie.pieId
     );
